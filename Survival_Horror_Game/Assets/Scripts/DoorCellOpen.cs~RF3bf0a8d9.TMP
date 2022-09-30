@@ -1,0 +1,213 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class DoorCellOpen : MonoBehaviour
+{
+    public float TheDistance;
+    public GameObject ActionDisplay;
+    public GameObject ActionText;
+    public GameObject PlayerTalksText;
+    public GameObject ExtraCross;
+    public GameObject phase1, phase2, phase3;
+    public GameObject TheDoor;
+    public AudioSource CreakSound;
+    public AudioSource TryingToOpenDoor;
+    public AudioSource _LockDoorSound;
+    public float timer;
+    bool DoorTrigger;
+    public bool firstSceneDoorIsOpened = false;
+    public bool isPlayerInTrigger = false;
+    int counterFirstScene = 0;
+    int counterAssistSounds = 0;
+
+
+    // Update is called once per frame
+    void Update()
+    {
+
+        TheDistance = PlayerCasting.DistanceFromTarget;
+        if (Input.GetButtonDown("Action") && DoorTrigger == true && counterFirstScene < 1 && OpenAmmoDrawer.playerIsIndrawerTrigger == false && PlayerPicksUpKey.isPlayerHoldingKey == true && PlayerPicksUpKey.keyTrigger == false) // "Action" is defined within Unity and corresponds to 'e' key.
+        {
+            counterFirstScene++;
+            this.GetComponent<BoxCollider>().enabled = false; // this reffers to the object this script is attached to.
+            ActionDisplay.SetActive(false);
+            ActionText.SetActive(false);
+            ExtraCross.SetActive(false);
+            TheDoor.GetComponent<Animation>().Play("FirstDoorOpenAnim");
+            CreakSound.Play();
+            firstSceneDoorIsOpened = true;
+        }
+
+        // if player presses action key or relases action key in order to open the door and doesn't have the key yet
+        if (Input.GetButtonDown("Action") && DoorTrigger == true && counterFirstScene < 1 && OpenAmmoDrawer.playerIsIndrawerTrigger == false && PlayerPicksUpKey.isPlayerHoldingKey == false &&PlayerPicksUpKey.keyTrigger == false)
+        {
+
+            if (counterAssistSounds == 0)
+            {
+                StartCoroutine(LockedDoorSound());
+                counterAssistSounds++;
+            }
+        }
+
+        if (C_Sequence.DoorIsClosed == true)
+        {
+            this.GetComponent<BoxCollider>().enabled = true;
+        }
+
+        if (Input.GetButton("Action") && DoorTrigger == true && C_Sequence.DoorIsClosed == true && isPlayerInTrigger == true)
+        {
+            if (TryingToOpenDoor.isPlaying == true)
+            {
+                PlayerTalksText.SetActive(true); // showing the text - explanation
+                PlayerTalksText.GetComponent<Text>().text = "Trying to open it";
+                timer += Time.deltaTime;
+                CSeqeunceDoorUnlock();
+            }
+
+        }
+
+        if (Input.GetButtonDown("Action") && DoorTrigger == true && C_Sequence.DoorIsClosed == true && isPlayerInTrigger == true) //In order to activate the audio properly
+        {
+
+            TryingToOpenDoor.Play();
+
+        }
+
+        if (Input.GetButtonUp("Action") && DoorTrigger == true && C_Sequence.DoorIsClosed == true)
+        {
+            timer = 0;
+            TryingToOpenDoor.Stop();
+            PlayerTalksText.SetActive(false); // unshowing the text - explanation
+            // Loading UI cancel
+            phase1.SetActive(false);
+            phase2.SetActive(false);
+            phase3.SetActive(false);
+        }
+
+    }
+    void OnTriggerEnter()
+    {
+        DoorTrigger = true;
+        if (firstSceneDoorIsOpened == true)
+        {
+            isPlayerInTrigger = true;
+        }
+
+        ExtraCross.SetActive(true);
+        ActionDisplay.SetActive(true); // showing the text - e
+
+        if (C_Sequence.DoorIsClosed == true) // C Seqeunce related
+        {
+            ActionText.GetComponent<Text>().text = "Hold to open the door";
+            ActionText.SetActive(true); // showing the text - explanation
+
+        }
+        else
+        {
+            ActionText.GetComponent<Text>().text = "Open the door";
+            ActionText.SetActive(true); // showing the text - explanation
+        }
+
+    }
+    // void OnTriggerStay()
+    //{
+    //     DoorTrigger = true;
+
+    // }
+
+    void OnTriggerExit()
+    {
+        isPlayerInTrigger = false;
+        ExtraCross.SetActive(false);
+        ActionDisplay.SetActive(false);
+        ActionText.SetActive(false);
+        timer = 0;
+        TryingToOpenDoor.Stop();
+        PlayerTalksText.SetActive(false); // unshowing the text - explanation     
+        // Loading UI cancel
+        phase1.SetActive(false);
+        phase2.SetActive(false);
+        phase3.SetActive(false);
+    }
+
+    /* void OnMouseOver() //whenever the mouse passes over the object that this script will be attached to.
+      {
+           if (TheDistance < 0.07)
+           {
+               ExtraCross.SetActive(true); 
+               ActionDisplay.SetActive(true); // showing the text - e
+               ActionText.SetActive(true); // showing the text - explanation
+
+           }
+
+           if (Input.GetButtonDown("Action") && DoorTrigger == true) // "Action" is defined within Unity and corresponds to 'e' key.
+           {
+               if (TheDistance < 0.07)
+               {
+                    this.GetComponent<BoxCollider>().enabled = false; // this reffers to the object this script is attached to.
+                   ActionDisplay.SetActive(false);
+                   ActionText.SetActive(false);
+                   TheDoor.GetComponent<Animation>().Play("FirstDoorOpenAnim");
+                   CreakSound.Play();
+                   StartCoroutine(WaitUntilTrigerVoices());
+               }
+           }
+       }
+          */
+    /*  private void OnMouseExit() // when we're not looking at the door - opposite of OnMouseOver
+      {
+          ExtraCross.SetActive(false);
+          ActionDisplay.SetActive(false);
+          ActionText.SetActive(false);
+      }
+    */
+
+
+    void CSeqeunceDoorUnlock()
+    {
+        // Starting of Loading UI
+        if (timer >= 0)
+        {
+            phase1.SetActive(true);
+            if (timer > 1.5 && timer <= 2)
+            {
+                phase2.SetActive(true);
+            }
+            if (timer > 2.5 && timer <= 3)
+            {
+                phase3.SetActive(true);
+            }
+
+        }
+        if (timer >= 3.0f)
+        {
+            phase1.SetActive(false);
+            phase2.SetActive(false);
+            phase3.SetActive(false);
+            // End of Loading UI
+
+            TryingToOpenDoor.Stop();
+            C_Sequence.DoorIsClosed = false;
+            this.GetComponent<BoxCollider>().enabled = false; // this reffers to the object this script is attached to.
+            CreakSound.Play();
+            TheDoor.GetComponent<Animation>().Play("FirstDoorOpenAnim");
+            ExtraCross.SetActive(false);
+            ActionDisplay.SetActive(false);
+            ActionText.SetActive(false);
+            PlayerTalksText.SetActive(false); // showing the text - explanation
+        }
+    }
+
+    IEnumerator LockedDoorSound()
+    {
+        _LockDoorSound.Play();
+        PlayerTalksText.SetActive(true); // showing the text - explanation
+        PlayerTalksText.GetComponent<Text>().text = "I need to find its key";
+        yield return new WaitForSeconds(1f);
+        PlayerTalksText.SetActive(false); // showing the text - explanation
+        counterAssistSounds = 0;
+
+    }
+}
