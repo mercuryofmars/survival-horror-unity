@@ -10,8 +10,8 @@ public class PlayerPicksUpKey : MonoBehaviour
     public GameObject ButtonText, DisplayActionText, ExtraCrosshair;
     public AudioSource PicksKeySound;
     int counter = 0;
-    public static bool keyTrigger = false; // in order to prevent triggering door opening when picking up the key
-    public static bool isPlayerHoldingKey = false; // in order to prevent triggering door opening when picking up the key
+    public static bool keyTrigger = false;
+    public static bool isPlayerHoldingKey = false; 
 
     void Update()
 

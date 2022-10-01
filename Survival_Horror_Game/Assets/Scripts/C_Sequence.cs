@@ -5,7 +5,7 @@ using UnityEngine;
 public class C_Sequence : MonoBehaviour
 {
     public GameObject CSeqeunceTrigger;
-    public GameObject FirstDoor;
+    public GameObject FirstDoor, FirstDoorTrigger;
     public AudioSource SoundFirstDoorCloses;
     bool startTrigger = false;
     public static bool DoorIsClosed = false;
@@ -38,6 +38,7 @@ public class C_Sequence : MonoBehaviour
         yield return new WaitForSeconds(0.68f);
         SoundFirstDoorCloses.Play();
         DoorIsClosed = true;
+        FirstDoorTrigger.GetComponent<BoxCollider>().enabled = true;
 
     }
 
