@@ -13,9 +13,9 @@ public class PistolTrigger : MonoBehaviour
     public GameObject RealPistol;
     public GameObject ExtraCross;
     public GameObject GuidedArrow;
-    public GameObject TorchB_Loom;
-    public GameObject TorchB_Particals;
-    public AudioSource clip, clip2, clip3, clip4, clip5;
+    public GameObject TorchB_Loom, TorchZombie_Loom;
+    public GameObject TorchB_Particals,TorchZombie_Particals;
+    public AudioSource clip, clip2, clip3, clip4, clip5, TorchOut;
     public GameObject ZombieDoorTrigger;
     public GameObject ZombieCharacter;
     public GameObject DoorTriggerCollider;
@@ -116,14 +116,19 @@ public class PistolTrigger : MonoBehaviour
     IEnumerator DoorKnockSounds()
     {
         yield return new WaitForSeconds(1.05f);
-        clip2.Play();
+        TorchOut.Play();
         TorchB_Loom.SetActive(false);
         TorchB_Particals.SetActive(false);
+        TorchZombie_Loom.SetActive(false);
+        TorchZombie_Particals.SetActive(false);
+        yield return new WaitForSeconds(1.2f);
+        clip2.Play();
+
     }
 
     IEnumerator ZombieScene()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(3.5f);
         clip3.Play();
         yield return new WaitForSeconds(1f);
         ZombieDoorTrigger.GetComponent<Animation>().Play("ZombieDoorAnimation");
